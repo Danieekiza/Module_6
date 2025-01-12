@@ -65,6 +65,7 @@ if __name__ == '__main__':
     db = Duckbill(10)  # утконос, скорость 10
 
     print('Утконос лежит на солнышке')
+    print(f'alive: {db.alive} \nbeak: {db.beak}')
     db.get_cords()
     print('Утконос предупреждающе пищит')
     db.speak()
