@@ -11,19 +11,38 @@ class Figure:
             if len(args[0]) == 3:
                 self.set_color(*args[0])
             else:
-                print('Неверные аргументы переданы в параметры цвета объекту класса Triangle()')
+                print(f'Неверные аргументы переданы в параметры цвета объекту класса {self.__class__}')
         else:
-            print('Неверные аргументы переданы в параметры цвета объекту класса Triangle()\n'
-                  'Тип первого аргумента - не tuple ')
+            print(f'Неверные аргументы переданы в параметры цвета объекту класса {self.__class__} \n'
+                  f'Тип первого аргумента - не tuple ')
             exit()
-        if len(args[1:]) == sides_count:
-            self.set_sides(*args[1:])
+        if self.__class__ == Cub: # для класса куб отдлеьная проверка
+            self.set_args_cub(*args[1:])
         else:
-            self.set_sides(1 * sides_count)
-            print('Неверные аргументы переданы в параметры строн объекту класса Triangle()\n'
-                  'Заданы стороны поумолчанию = 1')
+            if len(args[1:]) == sides_count:
+                self.set_sides(*args[1:])
+            else:
+                self.set_sides(1 * sides_count)
+                print(f'Неверные аргументы переданы в параметры строн объекту класса {self.__class__}\n'
+                      f'Заданы стороны поумолчанию = 1')
+
     def get_color(self):  # возвращает список RGB цветов
         return self.__color
+
+    def set_args_cub(self, *args): # проверяем,что переданные стороны куба равны
+        _list = []
+        for i in range(len(args) - 1):
+            if args[i] != args[i + 1] or args[i] < 1:
+                for i in range(12): _list.append(1)
+                self.__sides = _list # если не равны, то по умолчанию стороны = 1
+                _list = []
+                break
+        else:
+            a = 1 if  args[0] < 1 else args[0] # проверка значение на валидность
+            for i in range(12): _list.append(a)
+            self.__sides = _list # передаем заданную сторону 12 раз
+            _list = []
+
 
     def __is_valid_color(self, *colors):  # проверка корректности параметров цвет
         if len(colors) == 3:
@@ -43,7 +62,6 @@ class Figure:
         if self.__is_valid_color(*colors):  # если цвета валидные
             self.__color = list(colors)
             self.filled = True  # теперь объект закрашенный
-        # return f'{self}: {self.__color}'
 
     def __is_valid_sides(self, *new_sides):  # проверяет ддлины сторон на вещественность и
         # совпадения с кол-вом текуших сторон
@@ -57,24 +75,20 @@ class Figure:
                     return False
             else:
                     return True
-
         else:
             return False
 
     def get_sides(self):  # возвращать значение атрибута __sides
         return self.__sides
 
-    def set_sides(self, *new_sides):
-        """
-        должен принимать новые стороны, если их количество не равно sides_count,
-        то не изменять, в противном случае - менять.
-        :param new_sides:
-        :return: sides
-        """
-        if self.__is_valid_sides(*new_sides):
+    def set_sides(self, *new_sides): # метод определяет размер сторон фигуры
+        if self.__class__ == Cub: # для класса куб отдлеьная проверка
+            self.set_args_cub(*new_sides)
+        elif self.__is_valid_sides(*new_sides):
             self.__sides = []  # перезаписываем список
-            # print(self.__sides, Figure.__sides)
             [self.__sides.append(i) for i in new_sides]
+        else:
+            self.__sides = [1] * self.sides_count
 
     def __len__(self):  # периметр фигуры
         res = 0
@@ -112,26 +126,43 @@ class Triangle(Figure):
                 print('Из заданных вами сторон невозможно сложить треугольник.\n'
                       'Удаите эту ошибку математики ')
 
+class Cub(Figure): # класс Куб
+    def __init__(self, *args):
+        self.sides_count = 12
+        self.chec_args(*args, sides_count=self.sides_count)
 
-# a = Triangle((1, 2, 3), 3, 3, 2)
-# # a.set_sides(1, 3, 3)
-# print("a.square:",a.get_square())
-# a.set_sides(20, 20, 30)
-# # a.set_sides(2.1, 2, 3)
-# # a.set_color(255, 255, 255)
-# print("a.square:",a.get_square())
-# # print(len(a))
-# print('a.color: ', a.get_color())
-# print('a.sides: ', a.get_sides())
-# print('a.filled:', a.filled)
-#
-b = Circle((1, 2, 3), 2)
+    def get_volume(self): # метод объем куба
+        return self.get_sides()[0] ** 3
+
+
+a = Circle((1, 2, 3), 2, 3)
+print('a.color:', a.get_color())
+print('a.filled:', a.filled)
+print('a.sides:', a.get_sides())
+print('a.get_square:', a.get_square())
+a.set_sides(4)
+print('a.sides:',a.get_sides())
+print('len(a):', len(a))
+print('a.get_square:', a.get_square())
+print()
+
+b = Triangle((1, 2, 3), 2, 3, 2)
 print('b.color:', b.get_color())
 print('b.filled:', b.filled)
 print('b.sides:', b.get_sides())
 print('b.get_square:', b.get_square())
 b.set_sides(4)
-# print(b.get_sides())
-# # print(b.side)
+print('b.sides:', b.get_sides())
 print('len(b):', len(b))
 print('b.get_square:', b.get_square())
+print()
+
+c = Cub((1, 1, 1), 4, 4, 4)
+print('c.sides: ', c.get_sides())
+print('c.color: ', c.get_color())
+print('c.get_volume:', c.get_volume())
+c.set_sides(3, 3)
+c.set_color(255, 255, 255)
+print('c.sides: ', c.get_sides())
+print('c.color: ', c.get_color())
+print('c.get_volume:', c.get_volume())
